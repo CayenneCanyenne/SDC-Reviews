@@ -22,6 +22,10 @@ app.put('/reviews/:review_id/helpful', controller.markHelpful);
 app.put('/reviews/:review_id/report', controller.markReported);
 app.post('/reviews', controller.reviews.post);
 
+app.get('/loaderio-b0fd9cd4709e372f94f6f87e0be40e34', (req, res) => {
+  res.sendFile('/home/ubuntu/SDC-Reviews/loaderio-b0fd9cd4709e372f94f6f87e0be40e34.txt');
+});
+
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
