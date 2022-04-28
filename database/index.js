@@ -12,7 +12,6 @@ const pool = new Pool({
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
-  max: 30,
 });
 
 pool.connect()
