@@ -17,7 +17,7 @@ describe('Get Reviews', () => {
 });
 
 describe('Get Reviews Metadata', () => {
-  it('Should return error with extra column', () => frisby
+  it('Should return valid data types', () => frisby
     .get(path.join(baseUrl, '/reviews/meta?product_id=37311'))
     .expect('status', 200)
     .expect('jsonTypes', {
@@ -52,7 +52,7 @@ describe('Get Reviews Metadata', () => {
       },
     }));
 
-  it('Should return error with missing column', () => frisby
+  it('Should return error with wrong data type', () => frisby
     .get(path.join(baseUrl, '/reviews/meta?product_id=37311'))
     .expect('status', 200)
     .expectNot('jsonTypes', {
