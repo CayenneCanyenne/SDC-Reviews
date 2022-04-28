@@ -18,7 +18,6 @@ module.exports = {
       reviews.body,
       to_timestamp(reviews.date/1000) AS date,
       reviews.reviewer_name,
-      reviews.reported,
       reviews.helpfulness,
       jsonb_agg(jsonb_build_object(
         'id', reviews_photos.id,
@@ -26,7 +25,7 @@ module.exports = {
         ) AS photos
       FROM reviews
       LEFT OUTER JOIN reviews_photos ON reviews.id = reviews_photos.review_id
-      WHERE product_id=$1
+      WHERE product_id=$1 AND reviews.reported <> true
       GROUP BY reviews.id
       ORDER BY $2
       LIMIT $3
