@@ -28,6 +28,10 @@ app.get('/loaderio-b0fd9cd4709e372f94f6f87e0be40e34', (req, res) => {
   res.sendFile('/home/ubuntu/SDC-Reviews/loaderio-b0fd9cd4709e372f94f6f87e0be40e34.txt');
 });
 
+// app.get("/", (req, res) => {
+//   res.json({ message: "Heck ya docker!! 🐳" });
+// });
+
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });

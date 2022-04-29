@@ -1,4 +1,8 @@
+const NodeCache = require('node-cache');
 const models = require('./models');
+
+const reviewsCache = new NodeCache();
+const reviewsMetaCache = new NodeCache();
 
 module.exports = {
   reviews: {
@@ -8,15 +12,22 @@ module.exports = {
       const count = Number(req.query.count) || 5;
       const sort = req.query.sort || 'relevant';
 
-      models.reviews.getReviews(productId, page, count, sort, (err, results) => {
-        if (err) {
-          console.log(err);
-        } else {
-          res.send({
-            product: productId, page, count, results: results.rows,
-          });
-        }
-      });
+      if (reviewsCache.has(productId)) {
+        console.log('cache saved!');
+        res.status(200).send(reviewsCache.get(productId));
+      } else {
+        models.reviews.getReviews(productId, page, count, sort, (err, results) => {
+          if (err) {
+            console.log(err);
+          } else {
+            const data = {
+              product: productId, page, count, results: results.rows,
+            };
+            reviewsCache.set(productId, data);
+            res.send(data);
+          }
+        });
+      }
     },
     post: (req, res) => {
       models.reviews.addReviews(req.body, (err, results) => {
@@ -47,27 +58,34 @@ module.exports = {
 
     const characteristics = {};
 
-    models.getReviewsMetadata(productId, (err, results) => {
-      if (err) {
-        console.log(err);
-      } else {
-        const charVal = {};
-        const charCount = {};
-        results.rows.forEach((data) => {
-          ratings[data.rating] += 1;
-          recommended[data.recommend] += 1;
-          data.characteristics.forEach((char) => {
-            charVal[char.name] = charVal[char.name] + char.value || char.value;
-            charCount[char.name] = charCount[char.name] + 1 || 1;
-            characteristics[char.name] = { id: char.id, value: 0 };
+    if (reviewsMetaCache.has(productId)) {
+      console.log('cache saved!');
+      res.status(200).send(reviewsMetaCache.get(productId));
+    } else {
+      models.getReviewsMetadata(productId, (err, results) => {
+        if (err) {
+          console.log(err);
+        } else {
+          const charVal = {};
+          const charCount = {};
+          results.rows.forEach((data) => {
+            ratings[data.rating] += 1;
+            recommended[data.recommend] += 1;
+            data.characteristics.forEach((char) => {
+              charVal[char.name] = charVal[char.name] + char.value || char.value;
+              charCount[char.name] = charCount[char.name] + 1 || 1;
+              characteristics[char.name] = { id: char.id, value: 0 };
+            });
+            Object.keys(characteristics).forEach((key) => {
+              characteristics[key].value = charVal[key] / charCount[key];
+            });
           });
-          Object.keys(characteristics).forEach((key) => {
-            characteristics[key].value = charVal[key] / charCount[key];
-          });
-        });
-        res.send({ ratings, recommended, characteristics });
-      }
-    });
+          const data = { ratings, recommended, characteristics };
+          reviewsMetaCache.set(productId, data);
+          res.send(data);
+        }
+      });
+    }
   },
 
   markHelpful: (req, res) => {
