@@ -13,7 +13,6 @@ module.exports = {
       const sort = req.query.sort || 'relevant';
 
       if (reviewsCache.has(productId)) {
-        console.log('Get data from cache');
         res.status(200).send(reviewsCache.get(productId));
       } else {
         models.reviews.getReviews(productId, page, count, sort, (err, results) => {
@@ -23,7 +22,6 @@ module.exports = {
             const data = {
               product: productId, page, count, results: results.rows,
             };
-            console.log('cache saved!');
             reviewsCache.set(productId, data);
             res.send(data);
           }
@@ -60,7 +58,6 @@ module.exports = {
     const characteristics = {};
 
     if (reviewsMetaCache.has(productId)) {
-      console.log('cache saved!');
       res.status(200).send(reviewsMetaCache.get(productId));
     } else {
       models.getReviewsMetadata(productId, (err, results) => {
